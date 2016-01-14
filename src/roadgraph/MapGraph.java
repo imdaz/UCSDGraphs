@@ -14,7 +14,10 @@ import java.util.function.Consumer;
 import geography.GeographicPoint;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Stack;
 import java.util.TreeSet;
 import util.GraphLoader;
 
@@ -102,18 +105,17 @@ public class MapGraph {
     public void addEdge(GeographicPoint from, GeographicPoint to,
             String roadName, String roadType, double length)
             throws IllegalArgumentException {
+
         if (from == null || to == null || roadName == null
                 || roadType == null || length < 0 || !mapNodes.containsKey(from)
                 || !mapNodes.containsKey(to)) {
             throw new IllegalArgumentException();
         }
-        MapEdge edge = new MapEdge(mapNodes.get(from), mapNodes.get(to),
-                roadName, roadType, length);
 
-        mapNodes.get(from).addNeighbor(edge);
-        mapNodes.get(to).addNeighbor(edge);
-        numEdges++;
-
+        if (!mapNodes.get(from).hasEdge(to)) {
+            mapNodes.get(from).addNeighbor(to, roadName, roadType, length);
+            numEdges++;
+        }
     }
 
     /**
@@ -143,51 +145,98 @@ public class MapGraph {
      */
     public List<GeographicPoint> bfs(GeographicPoint start,
             GeographicPoint goal, Consumer<GeographicPoint> nodeSearched) {
-        List<MapNode> queue = new LinkedList<>();
 
+        if (start == null || goal == null) {
+            throw new IllegalArgumentException();
+        }
+
+        List<GeographicPoint> result = null;
+        if (start.equals(goal)) {
+            result = new LinkedList<>();
+            result.add(goal);
+            return result;
+        }
+
+        //HashMap for tracing path <child, parent>
+        HashMap<MapNode, MapNode> trace = new HashMap<>();
+        HashSet<MapNode> visited = new HashSet<>();
+        // queue for BFS
+        List<MapNode> q = new LinkedList();
+
+        MapNode curr = mapNodes.get(start);
+        q.add(curr);
+        trace.put(curr, null);
         boolean found = false;
-        queue.add(mapNodes.get(start));
-        // storing nodes (child -> parent) to trace who discover a child
-        
-        
-        
-        MapNode curr = null;
-//      
-        while (!queue.isEmpty()) {
-            curr = queue.remove(0);
+        MapNode tmp;
 
+        while (!q.isEmpty()) {
+            curr = q.remove(0);
+            nodeSearched.accept(curr.getLocation());
+            
+            System.out.println("**************************"+curr);
+            
+            
+            
+            
+            
+            
+            if (!visited.contains(curr)) {
+                
+                
+                System.out.println("=====================");
+                for (MapEdge edge : curr.getNeighbors().values()) {
+                    tmp = mapNodes.get(edge.getEnd());
+//                    System.out.println("vis "+ visited);
+//                    System.out.println("tmp "+ tmp);
+//                    System.out.println("con "+ visited.contains(tmp));
+                    if (!visited.contains(tmp)) {
+                        
+                        
+                        q.add(tmp);
+                        trace.put(tmp, curr);
+                        System.out.println("trace " + tmp + "->" + curr);
+                        
+                        
+                    }
+
+                }
+                visited.add(curr);
+                System.out.println("=====================");
+            }
+            
             if (curr.getLocation().equals(goal)) {
                 found = true;
                 break;
             }
-            for (MapEdge neighbor : curr.getNeighbors()) {
-
-//                if (visited) {
-//                    queue.add(neighbor.getEnd());
-//                    trace.put(neighbor.getEnd(), curr);
-//                }
-
-            }
             
         }
 
-//        if (found) {
-//            trace.put(null, mapNodes.get(start));
-//            return buildPath(trace, curr, mapNodes.get(start));
-//        }
-
+        if (found) {
+            result = buildPath(trace, goal);
+        }
         // Hook for visualization.  See writeup.
         //nodeSearched.accept(next.getLocation());
-        return null;
+
+        return result;
     }
 
     private List<GeographicPoint> buildPath(HashMap<MapNode, MapNode> trace,
-            MapNode goal, MapNode start) {
+            GeographicPoint goal) {
 
-        List<GeographicPoint> res = new LinkedList<>();
-        MapNode curr = goal;
-
-        return res;
+        System.out.println("building");
+        System.out.println(trace);
+        MapNode curr = mapNodes.get(goal);
+        
+        Stack<GeographicPoint> result = new Stack<>();
+        while (curr != null) {
+//            System.out.println(curr.getLocation());
+            
+            result.push(curr.getLocation());
+            
+            curr = trace.get(curr);
+        }
+        System.out.println("end --- ");
+        return result;
     }
 
     /**
@@ -271,18 +320,39 @@ public class MapGraph {
         System.out.print("DONE. \nLoading the map...");
         GraphLoader.loadRoadMap("data/testdata/simpletest.map", theMap);
         System.out.println("DONE.");
+        int c = 1;
 
         System.out.println(theMap.numEdges + " " + theMap.numVertices);
-        System.out.println(theMap);
+        for (GeographicPoint gp : theMap.getVertices()) {
+            System.out.println("" + c++ + ". " + gp);
+        }
 
-        Set<GeographicPoint> s = theMap.mapNodes.keySet();
-
-        List<GeographicPoint> l = theMap.bfs((GeographicPoint) s.toArray()[0], (GeographicPoint) s.toArray()[1]);
-
-        System.out.println("***** path ");
-        System.out.println(l);
-
-
+//        System.out.println("=============================");
+//        c = 1;
+//            for (MapNode mp : theMap.mapNodes.values()){
+//                for(MapEdge me : mp.getNeighbors().values()){
+//                    System.out.println("" + c++ + ". "+ me);
+//                }
+//            }
+        List<GeographicPoint> l;
+        l = theMap.bfs(new GeographicPoint(4.0, 1.0), new GeographicPoint(5.0, 1.0));
+        
+        MapNode m1 = theMap.mapNodes.get(new GeographicPoint(4.0, 1.0));
+        
+        for (MapEdge e : m1.getNeighbors().values()){
+            System.out.println("edges:" + e);
+        }
+        
+        if (l == null) {
+            System.out.println("no way");
+        } else {
+            for (GeographicPoint g : l) {
+                System.out.println(g);
+            }
+        }
+//        List<GeographicPoint> l = theMap.bfs((GeographicPoint) s.toArray()[0], (GeographicPoint) s.toArray()[1]);
+//        System.out.println("***** path ");
+//        System.out.println(l);
         // You can use this method for testing.  
         /* Use this code in Week 3 End of Week Quiz
          MapGraph theMap = new MapGraph();

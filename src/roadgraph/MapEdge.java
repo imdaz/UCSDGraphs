@@ -13,13 +13,13 @@ import geography.GeographicPoint;
  */
 public class MapEdge {
 
-    private final MapNode start;
-    private final MapNode end;
+    private final GeographicPoint start;
+    private final GeographicPoint end;
     private final String streetName;
     private final String streetType;
     private final double distance;
 
-    public MapEdge(MapNode start, MapNode end, 
+    public MapEdge(GeographicPoint start, GeographicPoint end, 
             String streetName, String streetType, double distance) {
         this.start = start;
         this.end = end;
@@ -28,11 +28,11 @@ public class MapEdge {
         this.distance = distance;
     }
 
-    public MapNode getStart() {
+    public GeographicPoint getStart() {
         return start;
     }
 
-    public MapNode getEnd() {
+    public GeographicPoint getEnd() {
         return end;
     }
 
@@ -48,4 +48,10 @@ public class MapEdge {
         return distance;
     }
 
+    @Override
+    public String toString() {
+        return "(" + start + ")->(" + end + ") " + streetName + ", " + streetType + ", " + distance + '}';
+    }
+    
+    
 }

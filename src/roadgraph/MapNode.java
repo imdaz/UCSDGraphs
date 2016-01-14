@@ -6,9 +6,7 @@
 package roadgraph;
 
 import geography.GeographicPoint;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.HashMap;
 
 /**
  *
@@ -16,60 +14,61 @@ import java.util.Objects;
  */
 public class MapNode {
 
-    private GeographicPoint location;
-    private List<MapEdge> neighbors;
-
-    public MapNode(GeographicPoint location, List<MapEdge> neighbors) {
-        this.location = location;
-        this.neighbors = neighbors;
-    }
+    private final GeographicPoint location;
+    private final HashMap<GeographicPoint, MapEdge> neighbors;
 
     public MapNode(GeographicPoint location) {
         this.location = location;
-        this.neighbors = new LinkedList<>();
+        this.neighbors = new HashMap<>();
     }
 
     public GeographicPoint getLocation() {
         return location;
     }
 
-    public List<MapEdge> getNeighbors() {
+    public HashMap<GeographicPoint, MapEdge> getNeighbors() {
         return neighbors;
     }
 
-    public void setLocation(GeographicPoint location) {
-        this.location = location;
+    public boolean hasEdge(GeographicPoint neighbor) {
+        return neighbors.get(neighbor) != null;
     }
 
-    public void addNeighbor(MapEdge neighbor) {
-        if (neighbor != null)
-        this.neighbors.add(neighbor);
+    public boolean addNeighbor(GeographicPoint neighbor, String streetName,
+            String streetType, double distance) {
+
+        if (neighbor != null && !hasEdge(neighbor)
+                && !this.location.equals(neighbor)) {
+
+            this.neighbors.put(neighbor, new MapEdge(location, neighbor,
+                    streetName, streetType, distance));
+            return true;
+        }
+
+        return false;
     }
 
     @Override
     public String toString() {
-
-        return "MapNode{" + "location=" + location + neighbors.size() +'}';
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        final MapNode other = (MapNode) obj;
-        return Objects.equals(this.location, other.location);
+        return "MapNode{" + "location=" + location + neighbors.size() + '}';
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 3;
-        hash = 83 * hash + Objects.hashCode(this.location);
-        return hash;
+    public static void main(String... args) {
+        MapNode node = new MapNode(new GeographicPoint(4.0, 1.0));
+
+//        System.out.println("Adding new neighbor (true)");
+//        System.out.println(node.addNeighbor(new GeographicPoint(2.0, 2.0), "main", "road", 7));
+//        System.out.println("Adding the same neighbor (fasle)");
+//        System.out.println(node.addNeighbor(new GeographicPoint(2.0, 2.0), "main", "road", 7));
+//        System.out.println("Check existed neighbor (true)");
+//        System.out.println(node.hasEdge(new GeographicPoint(2.0, 2.0)));
+//        System.out.println("Check non-existed neighbor (false)");
+//        System.out.println(node.hasEdge(new GeographicPoint(2.0, 3.0)));
+//        System.out.println("Self-edge (false)");
+//        System.out.println(node.addNeighbor(new GeographicPoint(1.0, 1.0), "main", "road", 7));
+        
+        
+        
     }
-    
-    
+
 }
