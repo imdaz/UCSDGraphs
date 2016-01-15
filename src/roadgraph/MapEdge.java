@@ -1,14 +1,12 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Part of MapGraph project. 
  */
 package roadgraph;
 
 import geography.GeographicPoint;
 
 /**
- *
+ * 
  * @author imdaz
  */
 public class MapEdge {
@@ -19,7 +17,7 @@ public class MapEdge {
     private final String streetType;
     private final double distance;
 
-    public MapEdge(GeographicPoint start, GeographicPoint end, 
+    public MapEdge(GeographicPoint start, GeographicPoint end,
             String streetName, String streetType, double distance) {
         this.start = start;
         this.end = end;
@@ -52,6 +50,5 @@ public class MapEdge {
     public String toString() {
         return "(" + start + ")->(" + end + ") " + streetName + ", " + streetType + ", " + distance + '}';
     }
-    
-    
+
 }

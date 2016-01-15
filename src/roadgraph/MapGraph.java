@@ -10,15 +10,11 @@ package roadgraph;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-
 import geography.GeographicPoint;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Stack;
-import java.util.TreeSet;
 import util.GraphLoader;
 
 /**
@@ -148,11 +144,11 @@ public class MapGraph {
 
         if (start == null || goal == null) {
             throw new IllegalArgumentException();
-        }
 
-        List<GeographicPoint> result = null;
+        }
+        List<GeographicPoint> result = new LinkedList<>();
+
         if (start.equals(goal)) {
-            result = new LinkedList<>();
             result.add(goal);
             return result;
         }
@@ -160,7 +156,6 @@ public class MapGraph {
         //HashMap for tracing path <child, parent>
         HashMap<MapNode, MapNode> trace = new HashMap<>();
         HashSet<MapNode> visited = new HashSet<>();
-        // queue for BFS
         List<MapNode> q = new LinkedList();
 
         MapNode curr = mapNodes.get(start);
@@ -171,71 +166,58 @@ public class MapGraph {
 
         while (!q.isEmpty()) {
             curr = q.remove(0);
-            nodeSearched.accept(curr.getLocation());
-            
-            System.out.println("**************************"+curr);
-            
-            
-            
-            
-            
-            
-            if (!visited.contains(curr)) {
-                
-                
-                System.out.println("=====================");
-                for (MapEdge edge : curr.getNeighbors().values()) {
-                    tmp = mapNodes.get(edge.getEnd());
-//                    System.out.println("vis "+ visited);
-//                    System.out.println("tmp "+ tmp);
-//                    System.out.println("con "+ visited.contains(tmp));
-                    if (!visited.contains(tmp)) {
-                        
-                        
-                        q.add(tmp);
-                        trace.put(tmp, curr);
-                        System.out.println("trace " + tmp + "->" + curr);
-                        
-                        
-                    }
 
-                }
-                visited.add(curr);
-                System.out.println("=====================");
-            }
-            
+            // Hook for visualization.  See writeup.
+            nodeSearched.accept(curr.getLocation());
+
             if (curr.getLocation().equals(goal)) {
                 found = true;
                 break;
             }
-            
+
+            if (!visited.contains(curr)) {
+
+                for (MapEdge edge : curr.getNeighbors().values()) {
+                    tmp = mapNodes.get(edge.getEnd());
+                    if (!visited.contains(tmp)) {
+
+                        /* adds a neighbor only if it has not been added before
+                         // to trace. This preventing adding self-loops and 
+                         // longer paths to q.
+                         */
+                        if (!trace.containsKey(tmp)) {
+                            q.add(tmp);
+                            trace.put(tmp, curr);
+                        }
+                    }
+                }
+                visited.add(curr);
+            }
         }
 
         if (found) {
             result = buildPath(trace, goal);
         }
-        // Hook for visualization.  See writeup.
-        //nodeSearched.accept(next.getLocation());
 
         return result;
     }
 
+    /**
+     * Create a path from trace HashMap. returns a path - list of points from
+     * start to goal
+     */
     private List<GeographicPoint> buildPath(HashMap<MapNode, MapNode> trace,
             GeographicPoint goal) {
 
-        System.out.println("building");
-        System.out.println(trace);
         MapNode curr = mapNodes.get(goal);
-        
-        Stack<GeographicPoint> result = new Stack<>();
+
+        List<GeographicPoint> result = new LinkedList<>();
         while (curr != null) {
-//            System.out.println(curr.getLocation());
-            
-            result.push(curr.getLocation());
-            
+            result.add(curr.getLocation());
             curr = trace.get(curr);
         }
-        System.out.println("end --- ");
+
+        Collections.reverse(result);
         return result;
     }
 
@@ -335,24 +317,18 @@ public class MapGraph {
 //                }
 //            }
         List<GeographicPoint> l;
-        l = theMap.bfs(new GeographicPoint(4.0, 1.0), new GeographicPoint(5.0, 1.0));
-        
-        MapNode m1 = theMap.mapNodes.get(new GeographicPoint(4.0, 1.0));
-        
-        for (MapEdge e : m1.getNeighbors().values()){
-            System.out.println("edges:" + e);
-        }
-        
+        l = theMap.bfs(new GeographicPoint(1.0, 1.0), new GeographicPoint(6.5, 0.0));
+
+        System.out.println("BFS");
         if (l == null) {
             System.out.println("no way");
         } else {
-            for (GeographicPoint g : l) {
-                System.out.println(g);
+            for (int i = 0; i < l.size(); i++) {
+                System.out.println(l.get(i));
             }
+
         }
-//        List<GeographicPoint> l = theMap.bfs((GeographicPoint) s.toArray()[0], (GeographicPoint) s.toArray()[1]);
-//        System.out.println("***** path ");
-//        System.out.println(l);
+
         // You can use this method for testing.  
         /* Use this code in Week 3 End of Week Quiz
          MapGraph theMap = new MapGraph();
