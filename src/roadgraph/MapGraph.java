@@ -146,9 +146,10 @@ public class MapGraph {
             throw new IllegalArgumentException();
 
         }
-        List<GeographicPoint> result = new LinkedList<>();
+        List<GeographicPoint> result = null; 
 
         if (start.equals(goal)) {
+            result = new LinkedList<>();
             result.add(goal);
             return result;
         }
@@ -197,7 +198,7 @@ public class MapGraph {
 
         if (found) {
             result = buildPath(trace, goal);
-        }
+        } 
 
         return result;
     }
